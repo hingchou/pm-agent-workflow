@@ -1,43 +1,3 @@
-
-## **🎯 目标：让任何人 Fork 后自动拥有这套 Skills**
-
----
-
-## **📦 项目结构（精简版）**
-
-```
-pm-agent-workflow/
-├── README.md                          # 主文档（你要的这个）
-├── .claude/
-│   └── skills/
-│       ├── spec-architect/
-│       │   └── SKILL.md
-│       └── nova-judge/
-│           └── SKILL.md
-├── templates/
-│   ├── CLAUDE.md.template
-│   ├── data_contract.py.template
-│   └── behavior.feature.template
-├── examples/
-│   └── password_reset/                # 演示案例
-│       ├── requirements.md
-│       ├── logic_flow.mermaid
-│       ├── CLAUDE.md
-│       ├── schemas/
-│       │   └── password_reset_contract.py
-│       └── tests/
-│           └── password_reset.feature
-└── docs/
-    └── SOP_PM_TO_AGENT.md
-```
-
----
-
-## **📄 README.md（完整版）**
-
-**文件路径：`README.md`**
-
-```markdown
 # PM-Agent Workflow Skills
 
 > **将 PM 的动作固化为 AI Skills，实现资产化交付**  
@@ -68,7 +28,7 @@ pm-agent-workflow/
 ### Step 1: Fork 本仓库
 
 ```bash
-git clone https://github.com/[你的用户名]/pm-agent-workflow.git
+git clone https://github.com/hingchou/pm-agent-workflow.git
 cd pm-agent-workflow
 ```
 
@@ -212,7 +172,7 @@ When 外部邮件服务超时（>5 秒）, the system shall 重试 3 次并记�
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/[你的用户名]/pm-agent-workflow.git
+git clone https://github.com/hingchou/pm-agent-workflow.git
 cd pm-agent-workflow
 
 # 2. 运行安装脚本
@@ -355,7 +315,7 @@ base_score -= (medium_issues * 5)
 MIT License
 
 ```
-Copyright (c) 2026 [你的名字/组织]
+Copyright (c) 2026 逸云
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -381,10 +341,10 @@ in the Software without restriction...
 
 ## 📞 联系方式
 
-- **GitHub Issues:** [提交问题](https://github.com/[你的用户名]/pm-agent-workflow/issues)
-- **Discussions:** [加入讨论](https://github.com/[你的用户名]/pm-agent-workflow/discussions)
-- **Email:** [你的邮箱]
-- **Twitter/X:** [@你的账号]
+- **GitHub Issues:** [提交问题](https://github.com/hingchou/pm-agent-workflow/issues)
+- **Discussions:** [加入讨论](https://github.com/hingchou/pm-agent-workflow/discussions)
+- **Email:** nightowlhc@gmail.com
+- **Twitter/X:** [nightowlhc](https://x.com/nightowlhc)
 
 ---
 
@@ -392,162 +352,8 @@ in the Software without restriction...
 
 如果这个项目对你有帮助，请给个 ⭐️ Star！
 
-[![Star History Chart](https://api.star-history.com/svg?repos=[你的用户名]/pm-agent-workflow&type=Date)](https://star-history.com/#[你的用户名]/pm-agent-workflow&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=hingchou/pm-agent-workflow&type=Date)](https://star-history.com/#hingchou/pm-agent-workflow&Date)
 
 ---
 
 **Made with ❤️ by PM who believe in deterministic engineering**
-```
-
----
-
-## **🎯 配套文件：`setup.sh`（自动安装脚本）**
-
-**文件路径：`setup.sh`**
-
-```bash
-#!/bin/bash
-
-echo "🚀 PM-Agent Workflow 自动安装脚本"
-echo "=================================="
-
-# 检测操作系统
-OS="$(uname -s)"
-case "${OS}" in
-    Linux*)     MACHINE=Linux;;
-    Darwin*)    MACHINE=Mac;;
-    MINGW*)     MACHINE=Windows;;
-    *)          MACHINE="UNKNOWN:${OS}"
-esac
-
-echo "📍 检测到操作系统: $MACHINE"
-
-# 检查 Python 版本
-echo ""
-echo "🔍 检查 Python 版本..."
-if command -v python3 &> /dev/null; then
-    PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
-    echo "✅ Python $PYTHON_VERSION 已安装"
-else
-    echo "❌ Python 3 未安装，请先安装 Python 3.11+"
-    exit 1
-fi
-
-# 安装 Python 依赖
-echo ""
-echo "📦 安装 Python 依赖..."
-pip install -q pre-commit pytest pytest-bdd mypy black
-
-# 配置 Git Hooks
-echo ""
-echo "🔧 配置 Git Hooks..."
-pre-commit install
-
-# 验证 Skills
-echo ""
-echo "🔍 验证 Skills 文件..."
-if [ -f ".claude/skills/spec-architect/SKILL.md" ] && [ -f ".claude/skills/nova-judge/SKILL.md" ]; then
-    echo "✅ Skills 文件已就位"
-else
-    echo "❌ Skills 文件缺失，请检查 .claude/skills/ 目录"
-    exit 1
-fi
-
-# 创建示例目录（如果不存在）
-if [ ! -d "examples" ]; then
-    echo ""
-    echo "📁 创建示例目录..."
-    mkdir -p examples
-fi
-
-# 完成
-echo ""
-echo "=================================="
-echo "🎉 安装完成！"
-echo ""
-echo "下一步："
-echo "1. 查看演示案例: cd examples/password_reset"
-echo "2. 阅读文档: cat docs/SOP_PM_TO_AGENT.md"
-echo "3. 调用 Skills: 在 Claude/Cursor 中输入 @spec-architect"
-echo ""
-echo "遇到问题？访问: https://github.com/[你的用户名]/pm-agent-workflow/issues"
-```
-
----
-
-## **📦 最终文件清单**
-
-```
-pm-agent-workflow/
-├── README.md                          ✅ 刚才生成的主文档
-├── setup.sh                           ✅ 自动安装脚本
-├── LICENSE                            ⚠️ 需要添加 MIT 协议
-├── .gitignore                         ⚠️ 需要添加
-├── .claude/
-│   └── skills/
-│       ├── spec-architect/
-│       │   └── SKILL.md              ✅ 已有
-│       └── nova-judge/
-│           └── SKILL.md              ✅ 已有
-├── templates/
-│   ├── CLAUDE.md.template            ✅ 已有
-│   ├── data_contract.py.template     ✅ 已有
-│   └── behavior.feature.template     ✅ 已有
-├── examples/
-│   └── password_reset/               ⚠️ 需要补充完整案例
-│       ├── README.md
-│       ├── requirements.md
-│       ├── logic_flow.mermaid
-│       ├── CLAUDE.md
-│       ├── schemas/
-│       │   └── password_reset_contract.py
-│       └── tests/
-│           └── password_reset.feature
-└── docs/
-    └── SOP_PM_TO_AGENT.md            ✅ 已有
-```
-
----
-
-## **🎯 立即行动**
-
-### **Step 1: 创建 GitHub 仓库**
-```bash
-# 在本地项目根目录
-git init
-git add .
-git commit -m "feat: 初始化 PM-Agent Workflow Skills"
-
-# 创建远程仓库（在 GitHub 网页上操作）
-# 然后推送
-git remote add origin https://github.com/[你的用户名]/pm-agent-workflow.git
-git push -u origin main
-```
-
-### **Step 2: 添加必要文件**
-
-**`.gitignore`:**
-```
-__pycache__/
-*.pyc
-.pytest_cache/
-.mypy_cache/
-.venv/
-node_modules/
-.DS_Store
-```
-
-**`LICENSE`（MIT）:**
-```
-MIT License
-
-Copyright (c) 2026 [你的名字]
-
-Permission is hereby granted, free of charge...
-```
-
-### **Step 3: 完善演示案例**
-
-将之前演练的密码重置案例复制到 `examples/password_reset/`。
-
----
