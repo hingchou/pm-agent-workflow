@@ -1,0 +1,183 @@
+"""
+数据契约模板
+用途：定义系统中所有数据结构的标准格式
+
+使用方法：
+1. 复制本文件到 schemas/ 目录
+2. 根据实际业务修改类名和字段
+3. 确保每个字段都有 description
+4. 添加至少 3 个 validator
+"""
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+from typing import Literal, Annotated
+from datetime import datetime
+from enum import Enum
+
+
+# ============================================================
+# 枚举类型定义
+# ============================================================
+
+class UserStatus(str, Enum):
+    """用户状态枚举"""
+    PENDING = "pending"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    BANNED = "banned"
+
+
+class ErrorCode(str, Enum):
+    """系统错误码"""
+    VALIDATION_ERROR = "VAL_001"
+    AUTH_ERROR = "AUTH_002"
+    TIMEOUT_ERROR = "NET_003"
+    UNKNOWN_ERROR = "SYS_999"
+
+
+# ============================================================
+# 请求模型
+# ============================================================
+
+class UserCreateRequest(BaseModel):
+    """用户创建请求"""
+    
+    username: Annotated[str, Field(
+        min_length=3,
+        max_length=32,
+        pattern="^[a-zA-Z0-9_]+$",
+        description="用户名，仅允许字母、数字和下划线"
+    )]
+    
+    email: Annotated[str, Field(
+        pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+        description="邮箱地址"
+    )]
+    
+    password_hash: Annotated[str, Field(
+        min_length=60,
+        max_length=60,
+        description="Bcrypt 加密后的密码"
+    )]
+    
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        reserved_words = ["admin", "root", "system", "test"]
+        if v.lower() in reserved_words:
+            raise ValueError(f"用户名不能使用保留词")
+        return v
+    
+    @field_validator("email")
+    @classmethod
+    def validate_email_domain(cls, v: str) -> str:
+        blocked_domains = ["tempmail.com", "guerrillamail.com"]
+        domain = v.split("@")[1]
+        if domain in blocked_domains:
+            raise ValueError(f"不支持的邮箱域名: {domain}")
+        return v.lower()
+
+
+class UserActionRequest(BaseModel):
+    """用户动作记录请求"""
+    
+    user_id: Annotated[str, Field(
+        pattern="^usr_[a-zA-Z0-9]{16}$",
+        description="用户唯一标识符"
+    )]
+    
+    action_type: Literal["click", "scroll", "submit", "navigate"] = Field(
+        description="动作类型"
+    )
+    
+    timestamp: datetime = Field(
+        description="动作发生的 UTC 时间戳"
+    )
+    
+    metadata: dict = Field(
+        default_factory=dict,
+        description="额外的元数据"
+    )
+    
+    @field_validator("timestamp")
+    @classmethod
+    def validate_timestamp(cls, v: datetime) -> datetime:
+        if v > datetime.utcnow():
+            raise ValueError("时间戳不能是未来时间")
+        return v
+    
+    @model_validator(mode="after")
+    def validate_metadata_size(self) -> "UserActionRequest":
+        import json
+        size = len(json.dumps(self.metadata))
+        if size > 1024:
+            raise ValueError(f"metadata 大小超限: {size} bytes")
+        return self
+
+
+# ============================================================
+# 响应模型
+# ============================================================
+
+class UserResponse(BaseModel):
+    """用户信息响应"""
+    
+    user_id: str = Field(description="用户 ID")
+    username: str = Field(description="用户名")
+    email: str = Field(description="邮箱（已脱敏）")
+    status: UserStatus = Field(description="用户状态")
+    created_at: datetime = Field(description="创建时间")
+    
+    @field_validator("email", mode="after")
+    @classmethod
+    def mask_email(cls, v: str) -> str:
+        if "@" not in v:
+            return v
+        local, domain = v.split("@")
+        if len(local) <= 2:
+            masked_local = "*" * len(local)
+        else:
+            masked_local = local[0] + "*" * (len(local) - 2) + local[-1]
+        return f"{masked_local}@{domain}"
+
+
+class APIResponse(BaseModel):
+    """标准 API 响应格式"""
+    
+    status: Literal["success", "error", "timeout"] = Field(
+        description="响应状态"
+    )
+    
+    data: dict | list | None = Field(
+        default=None,
+        description="业务数据"
+    )
+    
+    error: "ErrorDetail | None" = Field(
+        default=None,
+        description="错误详情"
+    )
+    
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="响应生成时间"
+    )
+    
+    @model_validator(mode="after")
+    def validate_response(self) -> "APIResponse":
+        if self.status == "success" and self.data is None:
+            raise ValueError("成功响应必须包含 data 字段")
+        if self.status == "error" and self.error is None:
+            raise ValueError("错误响应必须包含 error 字段")
+        return self
+
+
+class ErrorDetail(BaseModel):
+    """错误详情"""
+    
+    code: ErrorCode = Field(description="错误码")
+    message: str = Field(description="错误描述")
+    details: dict = Field(
+        default_factory=dict,
+        description="技术细节"
+    )
