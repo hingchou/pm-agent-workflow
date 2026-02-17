@@ -1,0 +1,22 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Skill Generated Files (Do not commit specific project outputs)
+*_draft.md
+final_prd_v4.md
+gap_analysis.md
+interview_questions.md
+interview_answers.md
+test/
+test2/
+scripts/ # (Optional: Keep scripts if you want to distribute them, ignore if they are project specific copies)
