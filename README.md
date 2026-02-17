@@ -1,4 +1,4 @@
-# 赤光智算 - 逆向工程技能库 (Reverse Engineering Skills)
+# 个人逆向工程技能库 (My Reverse Engineering Skills)
 
 > 🔓 **让代码"说话"：通过 AI 从前端代码逆向还原业务逻辑**
 
